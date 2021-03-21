@@ -12,6 +12,7 @@ import requests
 import webbrowser
 import socket
 import sys
+import threading
 import subprocess
 
 class MainApp(Ui_MainWindow):
@@ -27,16 +28,32 @@ class MainApp(Ui_MainWindow):
             self.gopro = gopro
             self.ip = ip
             self.quality = quality
+            self._stop = False
+        
+        def stop(self):
+            self._stop = True
      
         def run(self):
+          
+
+            print("Start thread") 
             self.gopro.livestream("start")
-            self.gopro.stream(self.ip, self.quality)
-            subprocess.Popen("vlc --network-caching=300 --sout-x264-preset=ultrafast --sout-x264-tune=zerolatency --sout-x264-vbv-bufsize 0 --sout-transcode-threads 4 --no-audio udp://@:8554", shell=True)
+            
+           
+            while True: 
+                if self._stop: 
+                    print("Exit worker")
+                    return
+             
+            #self.gopro.stream(self.ip, self.quality)
+            #subprocess.Popen("vlc --network-caching=300 --sout-x264-preset=ultrafast --sout-x264-tune=zerolatency --sout-x264-vbv-bufsize 0 --sout-transcode-threads 4 --no-audio udp://@:8554", shell=True)
     
     def __init__(self):
         self.links = []
         self.stream_active = False
         self.thread = QThread() 
+        
+
         webbrowser.register('firefox',
             None,
             webbrowser.BackgroundBrowser("C://Program Files//Mozilla Firefox//firefox.exe"))
@@ -69,28 +86,30 @@ class MainApp(Ui_MainWindow):
 
         self.ip_to_stream_to.setText(self.get_ip_address())
 
+        self.streamWorker = MainApp.StreamingWorker(self.goproCamera, self.ip_to_stream_to.text(), self.stream_quality.currentText().lower())
+
+        self.streamWorker.moveToThread(self.thread)
+
+        self.thread.started.connect(self.streamWorker.run)
+        self.streamWorker.finished.connect(self.thread.quit)
+        self.streamWorker.finished.connect(self.streamWorker.deleteLater)
+        self.thread.finished.connect(self.thread.deleteLater)
+
 
 
     def start_streaming(self):
         if not self.stream_active:
-            self.streamWorker = MainApp.StreamingWorker(self.goproCamera, self.ip_to_stream_to.text(), self.stream_quality.currentText().lower())
-            
-            self.streamWorker.moveToThread(self.thread)
-            
-            self.thread.started.connect(self.streamWorker.run)
-            self.streamWorker.finished.connect(self.thread.quit)
-            self.streamWorker.finished.connect(self.streamWorker.deleteLater)
-            self.thread.finished.connect(self.thread.deleteLater)
             self.thread.start()
+
+            self.goproCamera.livestream("start")
+            subprocess.Popen("ffplay  -fflags nobuffer -f:v mpegts -probesize 8192 udp://10.5.5.100:8554", shell=True)
             
             self.stream_active = True
-            self.stream_button.setText("Stop Streaming")
         else:
-            subprocess.Popen("taskkill /im ffmpeg.exe /F")
+            self.streamWorker.stop()
 
             self.goproCamera.livestream("stop")
             self.stream_active = False
-            self.stream_button.setText("Start Streaming")
 
 
     def setupUi(self, MainWindow):
