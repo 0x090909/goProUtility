@@ -16,5 +16,5 @@ Screenshots:
 
 ### Download here
 
-https://github.com/cristiangutzu/goProUtility/releases/latest
+[GoPro Hero WiFi Explorer](https://github.com/cristiangutzu/goProUtility/releases/latest)
 
