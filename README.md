@@ -13,3 +13,8 @@ Screenshots:
 
 ![](screens/2.png)
 
+
+### Download here
+
+https://github.com/cristiangutzu/goProUtility/releases/latest
+
