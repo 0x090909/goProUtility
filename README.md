@@ -3,7 +3,7 @@ Go Pro Utility For Windows, it lets you download your images and videos instantl
 
 ToDo:
 
-* Fix Stream
+* Fix Stream (make it more intuitive, there are no instructions)
 
 Screenshots:
 
@@ -16,5 +16,5 @@ Screenshots:
 
 ### Download here
 
-https://github.com/cristiangutzu/goProUtility/releases/latest
+[GoPro Hero WiFi Explorer](https://github.com/cristiangutzu/goProUtility/releases/latest)
 
