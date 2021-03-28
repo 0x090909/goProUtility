@@ -15,9 +15,7 @@ import sys
 import threading
 import subprocess
 
-class MainApp(Ui_MainWindow):
-
- 
+class MainApp(Ui_MainWindow): 
     class StreamingWorker(QObject):
         finished = pyqtSignal()
         progress = pyqtSignal(int)
@@ -119,6 +117,7 @@ class MainApp(Ui_MainWindow):
         MainWindow.setWindowTitle("GoPro Hero WiFi Explorer")  
 
         self.stream_button.clicked.connect(self.start_streaming)
+        self.refresh_files.clicked.connect(self.fetch_media)
         
         try:
             self.fetch_media()
